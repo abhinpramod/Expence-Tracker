@@ -102,6 +102,14 @@ const Navbar = () => {
             >
               Add Category
             </MenuItem>
+            <MenuItem
+              onClick={() => {
+                navigate("/report");
+                setAnchorEl(null);
+              }}
+            >
+              Report
+            </MenuItem>
 
             <MenuItem
               onClick={() => {

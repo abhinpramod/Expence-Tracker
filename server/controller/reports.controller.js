@@ -1,43 +1,43 @@
 const Expense = require("../models/expense.model");
-const Budget = require("../models/budget.model");
-const Category = require("../models/category.model");
-const mongoose = require("mongoose");
+const Budget = require("../models/budget.model"); // Assuming you have budgets per category
 
-exports.monthlyReport = async (req, res) => {
-  const userId = req.user._id;
-  const month = Number(req.query.month ?? (new Date().getMonth()));
-  const year = Number(req.query.year ?? (new Date().getFullYear()));
+exports.getMonthlyReport = async (req, res) => {
+  try {
+    const { month, year } = req.query;
+    if (!month || !year) return res.status(400).json({ success: false, message: "Month & year required" });
 
-  // reuse logic: categories + budgets + spent agg
-  const categories = await Category.find({ userId });
+    const monthNum = parseInt(month) - 1;
+    const yearNum = parseInt(year);
 
-  const budgets = await Budget.find({ userId, month, year });
-  const budgetMap = {};
-  budgets.forEach(b => budgetMap[b.categoryId.toString()] = b.amount);
+    // Fetch all expenses in that month
+    const expenses = await Expense.find({
+      date: {
+        $gte: new Date(yearNum, monthNum, 1),
+        $lt: new Date(yearNum, monthNum + 1, 1)
+      }
+    }).populate("categoryId", "name");
 
-  const start = new Date(year, month, 1);
-  const end = new Date(year, month + 1, 0, 23, 59, 59);
+    // Fetch budgets (assuming Budget model has {categoryId, amount})
+    const budgets = await Budget.find({}).populate("categoryId", "name");
 
-  const spentAgg = await Expense.aggregate([
-    { $match: { userId: mongoose.Types.ObjectId(userId), date: { $gte: start, $lte: end } } },
-    { $group: { _id: "$categoryId", spent: { $sum: "$amount" } } }
-  ]);
-  const spentMap = {};
-  spentAgg.forEach(s => spentMap[s._id.toString()] = s.spent);
+    // Build report per category
+    const report = budgets.map(b => {
+      const spent = expenses
+        .filter(e => e.categoryId._id.equals(b.categoryId._id))
+        .reduce((sum, e) => sum + e.amount, 0);
 
-  const rows = categories.map(c => {
-    const cid = c._id.toString();
-    const budget = budgetMap[cid] ?? 0;
-    const spent = spentMap[cid] ?? 0;
-    return {
-      categoryId: cid,
-      name: c.name,
-      color: c.color,
-      budget,
-      spent,
-      remaining: budget - spent
-    };
-  });
+      return {
+        category: b.categoryId.name,
+        budget: b.amount,
+        spent,
+        remaining: b.amount - spent
+      };
+    });
 
-  res.json({ month, year, rows });
+    res.status(200).json({ success: true, data: report });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Failed to fetch report" });
+  }
 };

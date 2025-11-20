@@ -39,7 +39,7 @@ app.use('/api/categories', categoriesRoutes);
 app.use('/api/expense', expenseRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/budgets', budgetRoutes);
-app.use('/api/reports', reportsRoutes);
+app.use('/api/report', reportsRoutes);
 
 
 connectDB()

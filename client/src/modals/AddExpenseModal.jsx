@@ -6,7 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import toast from "react-hot-toast";
 import axiosInstance from "../utils/axiosInstance";
 
-export default function AddExpenseModal({ open, onClose, refreshDashboard }) {
+export default function AddExpenseModal({ open, onClose, refresh }) {
   const [categories, setCategories] = useState([]);
 
   const [form, setForm] = useState({
@@ -56,10 +56,11 @@ export default function AddExpenseModal({ open, onClose, refreshDashboard }) {
 
       const { over } = res.data;
       if (over) toast.error("Over budget!");
+
       else toast.success("Expense added");
 
       onClose();
-      refreshDashboard();
+      refresh()
     } catch (err) {
       toast.error("Failed to add expense");
     }
