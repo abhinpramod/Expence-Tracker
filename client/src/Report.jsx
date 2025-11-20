@@ -9,7 +9,7 @@ import {
   LinearProgress,
 } from "@mui/material";
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
-import axiosInstance from "./utils/axiosinstance";
+import axiosInstance from "./utils/axiosInstance";
 import toast from "react-hot-toast";
 
 import Navbar from "./components/navbar";
