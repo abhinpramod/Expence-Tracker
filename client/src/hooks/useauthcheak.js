@@ -1,4 +1,4 @@
-import axiosInstance from "../utils/axiosInstance.js";
+import axiosInstance from '../utils/axiosInstance.js';  
 import { useDispatch } from "react-redux";
 import { loginUser } from "../redux/userSlice.js";
 import { useEffect, useState } from "react";
@@ -11,8 +11,7 @@ const useAuthCheak = () => {
         try {
             const res = await axiosInstance.get("/auth/check-auth");
             if (res.data.success) {
-                dispatch(loginUser(res.data.user));
-                console.log(res.data);
+                dispatch(loginUser(res.data.user));'../utils/axiosInstance.js';;
                 
             }
         } catch (err) {
