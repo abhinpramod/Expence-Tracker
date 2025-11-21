@@ -5,7 +5,6 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import toast from "react-hot-toast";
 import axiosInstance from "../utils/axiosInstance";
-import { set } from "mongoose";
 
 export default function AddExpenseModal({ open, onClose, refresh }) {
   const [categories, setCategories] = useState([]);
