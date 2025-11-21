@@ -39,12 +39,7 @@ export default function AddExpenseModal({ open, onClose, refresh }) {
         .then((r) => {
           setCategories(r.data);
           setLoading(false);
-          setForm({
-            categoryId: "",
-            amount: "",
-            note: "",
-            date: new Date(),
-          });
+        
         })
         .catch(() => {
           toast.error("Failed to load categories");
@@ -77,7 +72,12 @@ export default function AddExpenseModal({ open, onClose, refresh }) {
 
       onClose();
       refresh()
-      
+      setForm({
+        categoryId: "",
+        amount: "",
+        note: "",
+        date: new Date(),
+      });
       setLoading(false);
     } catch (err) {
       toast.error("Failed to add expense");
