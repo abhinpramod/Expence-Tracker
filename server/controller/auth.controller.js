@@ -51,6 +51,7 @@ const verifyOtpController = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({ name, email, password: hashedPassword });
+    const existingUser = await User.findOne({ email });
 
     // delete OTP entry
     await Otp.deleteOne({ email });
