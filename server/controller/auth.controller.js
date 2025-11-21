@@ -6,26 +6,25 @@ const Otp = require('../models/otp.model.js');
 const generateToken = require('../lib/genaratetoken.js');
 
 const signupController = async (req, res) => {
-    console.log('thsi fro singup');
-    
-     try {
+  try {
     const { name, email, password } = req.body;
 
-    // check user exist
     const userExist = await User.findOne({ email });
-    if (userExist) return res.json({ success: false, message: "User already exists" });
+    if (userExist) {
+      return res.json({ success: false, message: "User already exists" });
+    }
 
-    // generate OTP
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // save otp
     await Otp.create({ email, otp: otpCode });
 
+    sendEmail(
+      email,
+      "Your OTP Code",
+      `Your OTP code is ${otpCode}. It will expire in 5 minutes.`
+    );
 
-    // send email
-    await sendEmail(email, "Your OTP Code", `Your OTP code is ${otpCode}. It will expire in 5 minutes.`);
-    console.log("otp ",otpCode);
-    
+    console.log("OTP:", otpCode);
 
     return res.json({ success: true, message: "OTP sent to email" });
 
@@ -34,6 +33,7 @@ const signupController = async (req, res) => {
     res.json({ success: false, message: "Signup failed" });
   }
 };
+
 
 const verifyOtpController = async (req, res) => {
     try {

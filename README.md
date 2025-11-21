@@ -1,2 +1,5 @@
-run client - npmn run dec=v
+run client - npmn run dev
 run server- node index
+
+
+
