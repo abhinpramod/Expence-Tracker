@@ -1,14 +1,13 @@
-const Expense = require("../models/expense.model");
-const Budget = require("../models/budget.model");
-
 exports.getMonthlyReport = async (req, res) => {
   console.log("in reports");
-  
+
   try {
     const { month, year } = req.query;
-    console.log(req.user);
-    console.log(req.user._id);
-    
+
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ success: false, message: "User not authenticated" });
+    }
+
     const userId = req.user._id;
 
     if (!month || !year) {
@@ -18,25 +17,33 @@ exports.getMonthlyReport = async (req, res) => {
     const monthNum = parseInt(month) - 1;
     const yearNum = parseInt(year);
 
-    // Fetch only this user's expenses for selected month
     const expenses = await Expense.find({
-      userId, // 👈 filter by user
+      userId,
       date: {
         $gte: new Date(yearNum, monthNum, 1),
         $lt: new Date(yearNum, monthNum + 1, 1)
       }
     }).populate("categoryId", "name");
 
-    // Fetch budgets only for this user
-    const budgets = await Budget.find({ userId, month: monthNum, year: yearNum }).populate("categoryId", "name");
+    const budgets = await Budget.find({
+      userId,
+      month: monthNum,
+      year: yearNum
+    }).populate("categoryId", "name");
 
     const report = budgets.map(b => {
       const spent = expenses
-        .filter(e => e.categoryId._id.equals(b.categoryId._id))
+        .filter(e =>
+          e.categoryId &&
+          b.categoryId &&
+          e.categoryId._id &&
+          b.categoryId._id &&
+          e.categoryId._id.equals(b.categoryId._id)
+        )
         .reduce((sum, e) => sum + e.amount, 0);
 
       return {
-        category: b.categoryId.name,
+        category: b.categoryId ? b.categoryId.name : "Unknown",
         budget: b.amount,
         spent,
         remaining: b.amount - spent
