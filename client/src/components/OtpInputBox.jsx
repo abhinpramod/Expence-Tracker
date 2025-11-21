@@ -37,10 +37,11 @@ const OtpInputBox = ({ formData }) => {
         dispatch(loginUser(res.data.user));
       } else {
         toast.error(res.data.message);
+        console.log("OTP verification failed:", res.data);
       }
     } catch (err) {
       toast.error("OTP verification failed");
-      console.log(err);
+      console.log("Error during OTP verification:", err);
     }
   };
 
