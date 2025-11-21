@@ -11,7 +11,7 @@ const OtpInputBox = ({ formData }) => {
   const dispatch = useDispatch();
 
   const handleChange = (e, i) => {
-    
+
     const value = e.target.value;
     if (isNaN(value)) return;
 
@@ -40,6 +40,7 @@ const OtpInputBox = ({ formData }) => {
       }
     } catch (err) {
       toast.error("OTP verification failed");
+      console.log(err);
     }
   };
 
