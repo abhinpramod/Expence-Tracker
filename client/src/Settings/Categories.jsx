@@ -34,22 +34,35 @@ export default function CategoriesSettings() {
   }, []);
 
   const add = async () => {
-    if (!form.name.trim()) return toast.error("Enter category name");
+    setLoading(true);
+    if (!form.name.trim()) {
+      setLoading(false);
+      return toast.error("Enter category name");
+    }
 
     await axiosInstance.post("/categories", form, { withCredentials: true });
     toast.success("Category Added");
 
     fetch();
     setForm({ name: "", color: "#60a5fa" });
+    setLoading(false);
   };
 
   const handleDelete = async () => {
+
+    try {
+    setLoading(true);
     await axiosInstance.delete(`/categories/${deleteId}`, {
       withCredentials: true,
     });
     toast.success("Category Deleted");
     fetch();
     setConfirmOpen(false);
+    setLoading(false);
+  } catch {
+    toast.error("Failed to delete category");
+    setLoading(false);
+  }
   };
 
   return (
