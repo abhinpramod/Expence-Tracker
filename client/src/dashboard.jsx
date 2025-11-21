@@ -21,11 +21,13 @@ export default function Dashboard() {
   const [openModal, setOpenModal] = useState(false);
   const [openCategoryModal, setOpenCategoryModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [loading, setLoading] = useState(false); // 🔥 added loading state
 
   const navigate = useNavigate();
 
   const fetchDashboard = async () => {
     try {
+      setLoading(true); // 🔥 start loader
       const res = await axiosInstance.get(
         `/dashboard?month=${month}&year=${year}`,
         { withCredentials: true }
@@ -33,6 +35,8 @@ export default function Dashboard() {
       setCategories(res.data.categories);
     } catch (err) {
       toast.error("Failed to load dashboard data");
+    } finally {
+      setLoading(false); // 🔥 stop loader
     }
   };
 
@@ -78,69 +82,79 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Responsive Category Cards */}
-        <div className="
-          grid 
-          grid-cols-1 
-          sm:grid-cols-2 
-          lg:grid-cols-3 
-          gap-5
-        ">
-          {categories?.map((cat) => {
-            const percent = cat.limit ? (cat.spent / cat.limit) * 100 : 0;
-            const remaining = cat.limit - cat.spent;
+        {/* 🔥 Loading Indicator */}
+        {loading && (
+          <div className="w-full py-10 flex justify-center">
+            <LinearProgress className="w-1/2" />
+          </div>
+        )}
 
-            return (
-              <div
-                key={cat.id}
-                onClick={() => {
-                  setSelectedCategory(cat);
-                  setOpenCategoryModal(true);
-                }}
-                className="
-                  p-4 rounded-xl shadow border bg-white cursor-pointer 
-                  hover:shadow-lg transition
-                "
-              >
-                <div className="flex justify-between items-center mb-3">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="w-4 h-4 rounded-full"
-                      style={{ background: cat.color }}
-                    />
-                    <h2 className="font-semibold">{cat.name}</h2>
+        {/* Category Cards (hidden while loading) */}
+        {!loading && (
+          <div
+            className="
+              grid
+              grid-cols-1
+              sm:grid-cols-2
+              lg:grid-cols-3
+              gap-5
+            "
+          >
+            {categories?.map((cat) => {
+              const percent = cat.limit ? (cat.spent / cat.limit) * 100 : 0;
+              const remaining = cat.limit - cat.spent;
+
+              return (
+                <div
+                  key={cat.id}
+                  onClick={() => {
+                    setSelectedCategory(cat);
+                    setOpenCategoryModal(true);
+                  }}
+                  className="
+                    p-4 rounded-xl shadow border bg-white cursor-pointer
+                    hover:shadow-lg transition
+                  "
+                >
+                  <div className="flex justify-between items-center mb-3">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-4 h-4 rounded-full"
+                        style={{ background: cat.color }}
+                      />
+                      <h2 className="font-semibold">{cat.name}</h2>
+                    </div>
+
+                    {cat.spent > cat.limit && (
+                      <span className="text-red-600 text-sm font-bold">
+                        OVER BUDGET
+                      </span>
+                    )}
                   </div>
 
-                  {cat.spent > cat.limit && (
-                    <span className="text-red-600 text-sm font-bold">
-                      OVER BUDGET
-                    </span>
+                  <LinearProgress
+                    variant="determinate"
+                    value={percent > 100 ? 100 : percent}
+                  />
+
+                  <p className="mt-2 text-sm text-gray-600">
+                    Spent: ₹{cat.spent} / ₹{cat.limit}
+                  </p>
+
+                  {remaining < 0 ? (
+                    <p className="font-bold mt-1 text-red-600">
+                      Exceeded by: ₹{Math.abs(remaining)}
+                    </p>
+                  ) : (
+                    <p className="font-bold mt-1 text-green-600">
+                      Remaining: ₹{remaining}
+                    </p>
                   )}
                 </div>
-
-                <LinearProgress
-                  variant="determinate"
-                  value={percent > 100 ? 100 : percent}
-                />
-
-                <p className="mt-2 text-sm text-gray-600">
-                  Spent: ₹{cat.spent} / ₹{cat.limit}
-                </p>
-
-                {/* If spent exceeds limit → Show Exceeded instead of Remaining */}
-                {remaining < 0 ? (
-                  <p className="font-bold mt-1 text-red-600">
-                    Exceeded by: ₹{Math.abs(remaining)}
-                  </p>
-                ) : (
-                  <p className="font-bold mt-1 text-green-600">
-                    Remaining: ₹{remaining}
-                  </p>
-                )}
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Floating Add Button */}
         <Fab
