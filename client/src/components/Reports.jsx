@@ -22,16 +22,15 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A569BD", "#F1948A"
 
 export default function Reports() {
   const today = new Date();
-  // Use 1-12 for month to match backend (avoid confusion)
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
-  const [rows, setRows] = useState([]); // per-category: { category, budget, spent, remaining }
+  const [rows, setRows] = useState([]);
   const [summary, setSummary] = useState({ totalBudget: 0, totalSpent: 0, totalRemaining: 0 });
   const [loading, setLoading] = useState(false);
 
   const normalizeReportResponse = (respData) => {
-    // Accept either { rows, summary } or { success, data } (where data = report array)
-    if (!respData) return { rows: [], summary: { totalBudget: 0, totalSpent: 0, totalRemaining: 0 } };
+    if (!respData)
+      return { rows: [], summary: { totalBudget: 0, totalSpent: 0, totalRemaining: 0 } };
 
     if (respData.rows) {
       return {
@@ -52,28 +51,14 @@ export default function Reports() {
         spent: Number(it.spent ?? 0),
         remaining: Number(it.remaining ?? (Number(it.budget ?? 0) - Number(it.spent ?? 0))),
       }));
-      const summary = {
-        totalBudget: r.reduce((s, x) => s + x.budget, 0),
-        totalSpent: r.reduce((s, x) => s + x.spent, 0),
-        totalRemaining: r.reduce((s, x) => s + x.remaining, 0),
+      return {
+        rows: r,
+        summary: {
+          totalBudget: r.reduce((s, x) => s + x.budget, 0),
+          totalSpent: r.reduce((s, x) => s + x.spent, 0),
+          totalRemaining: r.reduce((s, x) => s + x.remaining, 0),
+        }
       };
-      return { rows: r, summary };
-    }
-
-    // fallback if backend returned array directly
-    if (Array.isArray(respData)) {
-      const r = respData.map((it) => ({
-        category: it.category ?? it.name ?? "Unknown",
-        budget: Number(it.budget ?? 0),
-        spent: Number(it.spent ?? 0),
-        remaining: Number(it.remaining ?? (Number(it.budget ?? 0) - Number(it.spent ?? 0))),
-      }));
-      const summary = {
-        totalBudget: r.reduce((s, x) => s + x.budget, 0),
-        totalSpent: r.reduce((s, x) => s + x.spent, 0),
-        totalRemaining: r.reduce((s, x) => s + x.remaining, 0),
-      };
-      return { rows: r, summary };
     }
 
     return { rows: [], summary: { totalBudget: 0, totalSpent: 0, totalRemaining: 0 } };
@@ -82,21 +67,27 @@ export default function Reports() {
   const fetchReport = async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get(`/reports/monthly?month=${month}&year=${year}`, { withCredentials: true });
-      const payload = res.data;
-      const { rows: newRows, summary: newSummary } = normalizeReportResponse(payload);
+      const res = await axiosInstance.get(
+        `/reports/monthly?month=${month}&year=${year}`,
+        { withCredentials: true }
+      );
+      const { rows: newRows, summary: newSummary } =
+        normalizeReportResponse(res.data);
+
       setRows(newRows);
-      // ensure numeric summary fields exist
       setSummary({
-        totalBudget: Number(newSummary.totalBudget ?? newRows.reduce((s, r) => s + r.budget, 0)),
-        totalSpent: Number(newSummary.totalSpent ?? newRows.reduce((s, r) => s + r.spent, 0)),
-        totalRemaining: Number(newSummary.totalRemaining ?? newRows.reduce((s, r) => s + r.remaining, 0)),
+        totalBudget:
+          Number(newSummary.totalBudget) ??
+          newRows.reduce((s, r) => s + r.budget, 0),
+        totalSpent:
+          Number(newSummary.totalSpent) ??
+          newRows.reduce((s, r) => s + r.spent, 0),
+        totalRemaining:
+          Number(newSummary.totalRemaining) ??
+          newRows.reduce((s, r) => s + r.remaining, 0),
       });
     } catch (err) {
-      console.error(err);
       toast.error("Failed to load report");
-      setRows([]);
-      setSummary({ totalBudget: 0, totalSpent: 0, totalRemaining: 0 });
     } finally {
       setLoading(false);
     }
@@ -104,10 +95,8 @@ export default function Reports() {
 
   useEffect(() => {
     fetchReport();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [month, year]);
 
-  // Prepare data for charts
   const barData = rows.map((r) => ({
     category: r.category,
     Spent: Number(r.spent),
@@ -116,79 +105,83 @@ export default function Reports() {
 
   const pieData = [
     { name: "Spent", value: Number(summary.totalSpent) },
-    { name: "Remaining", value: Number(summary.totalRemaining) >= 0 ? Number(summary.totalRemaining) : 0 },
+    { name: "Remaining", value: Math.max(Number(summary.totalRemaining), 0) },
   ];
 
   return (
-    <div className="p-4 space-y-6">
-      <h1 className="text-xl font-bold">Monthly Expense Report</h1>
+    <div className="p-4 sm:p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
+      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+        Monthly Expense Report
+      </h1>
 
-      {/* Selectors */}
-      <div className="flex gap-4 items-center">
-        <div>
-          <select
-            value={month}
-            onChange={(e) => setMonth(Number(e.target.value))}
-            className="border px-3 py-2 rounded"
-          >
-            {months.map((m, i) => (
-              <option key={i} value={i + 1}>
-                {m}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Filters */}
+      <div className="flex flex-wrap gap-4 items-center bg-white rounded-xl shadow p-4">
+        <select
+          value={month}
+          onChange={(e) => setMonth(Number(e.target.value))}
+          className="border px-4 py-2 rounded-lg text-sm sm:text-base"
+        >
+          {months.map((m, i) => (
+            <option key={i} value={i + 1}>{m}</option>
+          ))}
+        </select>
 
-        <div>
-          <input
-            type="number"
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-            className="border px-3 py-2 rounded w-28"
-          />
-        </div>
+        <input
+          type="number"
+          value={year}
+          onChange={(e) => setYear(Number(e.target.value))}
+          className="border px-4 py-2 rounded-lg w-28 text-sm sm:text-base"
+        />
 
         <button
           onClick={fetchReport}
-          className="bg-blue-600 text-white px-3 py-2 rounded"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition"
         >
           Refresh
         </button>
 
-        {loading && <span className="ml-3 text-sm text-gray-500">Loading...</span>}
+        {loading && (
+          <span className="text-gray-500 text-sm ml-2">Loading...</span>
+        )}
       </div>
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="p-4 bg-white rounded shadow text-center">
-          <div className="text-sm text-gray-500">Total Budget</div>
-          <div className="text-2xl font-semibold">₹{summary.totalBudget}</div>
-        </div>
-        <div className="p-4 bg-white rounded shadow text-center">
-          <div className="text-sm text-gray-500">Total Spent</div>
-          <div className="text-2xl font-semibold text-red-600">₹{summary.totalSpent}</div>
-        </div>
-        <div className="p-4 bg-white rounded shadow text-center">
-          <div className="text-sm text-gray-500">Remaining</div>
-          <div className={`text-2xl font-semibold ${summary.totalRemaining < 0 ? "text-red-600" : "text-green-600"}`}>
-            ₹{summary.totalRemaining}
+      {/* Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          { title: "Total Budget", value: summary.totalBudget, color: "text-gray-900" },
+          { title: "Total Spent", value: summary.totalSpent, color: "text-red-600" },
+          {
+            title: "Remaining",
+            value: summary.totalRemaining,
+            color: summary.totalRemaining < 0 ? "text-red-600" : "text-green-600",
+          },
+        ].map((card, i) => (
+          <div key={i} className="bg-white p-5 rounded-xl shadow text-center">
+            <p className="text-gray-500 text-sm">{card.title}</p>
+            <p className={`text-2xl sm:text-3xl font-bold mt-1 ${card.color}`}>
+              ₹{card.value}
+            </p>
           </div>
-        </div>
+        ))}
       </div>
 
-      {/* Charts area */}
-      <div className="grid grid-cols-2 gap-6">
-        {/* Bar chart: Spent vs Remaining per category */}
-        <div className="bg-white p-4 rounded shadow">
-          <h3 className="font-semibold mb-2">Spent vs Remaining (per category)</h3>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* Bar Chart */}
+        <div className="bg-white rounded-xl shadow p-6">
+          <h3 className="font-semibold text-lg mb-4">
+            Spent vs Remaining (per category)
+          </h3>
+
           {barData.length === 0 ? (
-            <div className="text-center text-gray-500 py-12">No data for selected month</div>
+            <p className="text-center text-gray-500 py-12">No data available</p>
           ) : (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={320}>
               <BarChart data={barData}>
                 <XAxis dataKey="category" tick={{ fontSize: 12 }} />
                 <YAxis />
-                <Tooltip formatter={(value) => `₹${value}`} />
+                <Tooltip formatter={(v) => `₹${v}`} />
                 <Legend />
                 <Bar dataKey="Spent" stackId="a" />
                 <Bar dataKey="Remaining" stackId="a" />
@@ -197,28 +190,27 @@ export default function Reports() {
           )}
         </div>
 
-        {/* Pie chart: overall spent vs remaining */}
-        <div className="bg-white p-4 rounded shadow">
-          <h3 className="font-semibold mb-2">Overall Spent vs Remaining</h3>
-          {pieData.reduce((s, p) => s + p.value, 0) === 0 ? (
-            <div className="text-center text-gray-500 py-12">No data for selected month</div>
+        {/* Pie Chart */}
+        <div className="bg-white rounded-xl shadow p-6">
+          <h3 className="font-semibold text-lg mb-4">Overall Spent vs Remaining</h3>
+
+          {pieData.reduce((a, b) => a + b.value, 0) === 0 ? (
+            <p className="text-center text-gray-500 py-12">No data available</p>
           ) : (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={320}>
               <PieChart>
                 <Pie
                   data={pieData}
                   dataKey="value"
                   nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={90}
-                  label={(entry) => `${entry.name} (${entry.value})`}
+                  outerRadius={100}
+                  label
                 >
                   {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => `₹${value}`} />
+                <Tooltip formatter={(v) => `₹${v}`} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -227,29 +219,39 @@ export default function Reports() {
       </div>
 
       {/* Table */}
-      <div className="bg-white p-4 rounded shadow">
-        <table className="w-full border">
+      <div className="bg-white rounded-xl shadow p-6 overflow-x-auto">
+        <table className="w-full min-w-[600px]">
           <thead className="bg-gray-100">
             <tr>
-              <th className="p-2 text-left">Category</th>
-              <th className="p-2 text-right">Budget</th>
-              <th className="p-2 text-right">Spent</th>
-              <th className="p-2 text-right">Remaining</th>
+              <th className="p-3 text-left">Category</th>
+              <th className="p-3 text-right">Budget</th>
+              <th className="p-3 text-right">Spent</th>
+              <th className="p-3 text-right">Remaining</th>
             </tr>
           </thead>
+
           <tbody>
             {rows.length === 0 ? (
-              <tr><td colSpan={4} className="p-4 text-center text-gray-500">No rows</td></tr>
+              <tr>
+                <td colSpan={4} className="text-center py-6 text-gray-500">
+                  No category data found
+                </td>
+              </tr>
             ) : (
               rows.map((r, i) => (
-                <tr key={i} className={r.remaining < 0 ? "bg-red-50" : ""}>
-                  <td className="p-2">{r.category}</td>
-                  <td className="p-2 text-right">₹{Number(r.budget)}</td>
-                  <td className="p-2 text-right">₹{Number(r.spent)}</td>
-                  <td className="p-2 text-right">
-                    <span className={r.remaining < 0 ? "text-red-600" : "text-green-600"}>
-                      ₹{Number(r.remaining)}
-                    </span>
+                <tr
+                  key={i}
+                  className={`border-b ${r.remaining < 0 ? "bg-red-50" : ""}`}
+                >
+                  <td className="p-3">{r.category}</td>
+                  <td className="p-3 text-right">₹{r.budget}</td>
+                  <td className="p-3 text-right">₹{r.spent}</td>
+                  <td
+                    className={`p-3 text-right ${
+                      r.remaining < 0 ? "text-red-600" : "text-green-600"
+                    }`}
+                  >
+                    ₹{r.remaining}
                   </td>
                 </tr>
               ))
