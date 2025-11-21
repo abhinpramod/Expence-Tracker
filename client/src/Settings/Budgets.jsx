@@ -50,6 +50,7 @@ export default function BudgetsSettings() {
   }, [month, year]);
 
   const saveBudgets = async () => {
+    if (loading) return;
     try {
         setLoading(true); 
       const payload = {

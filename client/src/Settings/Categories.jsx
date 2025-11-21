@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import axiosInstance from "../utils/axiosInstance";
 import Navbar from "../components/navbar";
 import ConfirmDialog from "../components/ConfirmDialog";
-import { LinearProgress } from "@mui/material";
+import { debounce, LinearProgress } from "@mui/material";
 
 export default function CategoriesSettings() {
   const [list, setList] = useState([]);
@@ -34,6 +34,7 @@ export default function CategoriesSettings() {
   }, []);
 
   const add = async () => {
+    if (loading) return;
     setLoading(true);
     if (!form.name.trim()) {
       setLoading(false);
@@ -49,6 +50,7 @@ export default function CategoriesSettings() {
   };
 
   const handleDelete = async () => {
+    if (loading) return;
 
     try {
     setLoading(true);
