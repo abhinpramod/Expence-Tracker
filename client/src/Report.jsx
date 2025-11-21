@@ -53,7 +53,6 @@ const Report = () => {
     fetchReport();
   }, [month, year]);
 
-  // TOTALS
   const totalBudget = report.reduce((sum, r) => sum + r.budget, 0);
   const totalSpent = report.reduce((sum, r) => sum + r.spent, 0);
   const totalRemaining = report.reduce((sum, r) => sum + r.remaining, 0);
@@ -65,7 +64,6 @@ const Report = () => {
       <div className="p-4 space-y-6 max-w-5xl mx-auto">
         <h1 className="text-xl font-bold">Monthly Expense Report</h1>
 
-        {/* Month / Year */}
         <div className="flex flex-col md:flex-row gap-4">
           <FormControl fullWidth>
             <InputLabel>Select Month</InputLabel>
@@ -86,14 +84,12 @@ const Report = () => {
           </FormControl>
         </div>
 
-        {/* Loader */}
         {loading && (
           <div className="w-full">
             <LinearProgress />
           </div>
         )}
 
-        {/* Summary */}
         <Card className="shadow-md">
           <CardContent>
             <h2 className="text-lg font-bold mb-4">Overall Summary</h2>
@@ -116,7 +112,6 @@ const Report = () => {
           </CardContent>
         </Card>
 
-        {/* PIE CHART */}
         <Card>
           <CardContent>
             <h2 className="text-lg font-bold mb-4">Spending by Category</h2>
@@ -142,7 +137,6 @@ const Report = () => {
           </CardContent>
         </Card>
 
-        {/* RESPONSIVE TABLE */}
         <Card>
           <CardContent>
 

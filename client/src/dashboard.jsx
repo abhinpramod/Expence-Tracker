@@ -21,13 +21,13 @@ export default function Dashboard() {
   const [openModal, setOpenModal] = useState(false);
   const [openCategoryModal, setOpenCategoryModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [loading, setLoading] = useState(false); // 🔥 added loading state
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const fetchDashboard = async () => {
     try {
-      setLoading(true); // 🔥 start loader
+      setLoading(true); 
       const res = await axiosInstance.get(
         `/dashboard?month=${month}&year=${year}`,
         { withCredentials: true }
@@ -36,7 +36,7 @@ export default function Dashboard() {
     } catch (err) {
       toast.error("Failed to load dashboard data");
     } finally {
-      setLoading(false); // 🔥 stop loader
+      setLoading(false);
     }
   };
 
@@ -53,7 +53,7 @@ export default function Dashboard() {
 
       <div className="p-4 sm:p-6 max-w-6xl mx-auto">
 
-        {/* Month-Year Selector */}
+        
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
           <h1 className="text-xl sm:text-2xl font-bold text-center sm:text-left">
             {months[month]} {year}
@@ -82,14 +82,14 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* 🔥 Loading Indicator */}
+        
         {loading && (
           <div className="w-full py-10 flex justify-center">
             <LinearProgress className="w-1/2" />
           </div>
         )}
 
-        {/* Category Cards (hidden while loading) */}
+        
         {!loading && (
           <div
             className="
@@ -156,7 +156,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Floating Add Button */}
         <Fab
           color="primary"
           aria-label="add"

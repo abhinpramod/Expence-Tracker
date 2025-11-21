@@ -8,23 +8,19 @@ exports.getDashboard = async (req, res) => {
   const month = Number(req.query.month ?? new Date().getMonth());
   const year = Number(req.query.year ?? new Date().getFullYear());
 
-  // fetch categories
   const categories = await Category.find({ userId });
 
-  // budgets for month
   const budgets = await Budget.find({ userId, year, month });
   const budgetMap = {};
   budgets.forEach(b => (budgetMap[b.categoryId.toString()] = b.amount));
 
-  // monthly range
   const start = new Date(year, month, 1);
   const end = new Date(year, month + 1, 0, 23, 59, 59);
 
-  // aggregate spending
   const spentAgg = await Expense.aggregate([
     {
       $match: {
-        userId: userId, // ✔ FIXED — NO ObjectId() needed
+        userId: userId, 
         date: { $gte: start, $lte: end }
       }
     },

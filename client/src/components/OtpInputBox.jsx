@@ -9,6 +9,7 @@ const OtpInputBox = ({ formData }) => {
   const inputs = useRef([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e, i) => {
 
@@ -26,6 +27,7 @@ const OtpInputBox = ({ formData }) => {
     const code = otp.join("");
 
     try {
+        setLoading(true);
       const res = await axiosInstance.post("/auth/verify-otp", {
         ...formData,
         otp: code,
@@ -35,13 +37,16 @@ const OtpInputBox = ({ formData }) => {
         toast.success("User Registered Successfully");
         navigate("/dashboard");
         dispatch(loginUser(res.data.user));
+        setLoading(false);
       } else {
         toast.error(res.data.message);
         console.log("OTP verification failed:", res.data);
+        setLoading(false);
       }
     } catch (err) {
       toast.error("OTP verification failed");
       console.log("Error during OTP verification:", err);
+      setLoading(false);
     }
   };
 
@@ -63,8 +68,8 @@ const OtpInputBox = ({ formData }) => {
         ))}
       </div>
 
-      <button onClick={handleVerify} className="w-full bg-green-600 text-white p-3 rounded">
-        Verify OTP
+      <button onClick={handleVerify}  className="w-full bg-green-600 text-white p-3 rounded" disabled={loading}>
+        {loading ? "Verifying..." : "Verify OTP"}
       </button>
 
     </div>

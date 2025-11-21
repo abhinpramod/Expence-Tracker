@@ -53,7 +53,6 @@ const verifyOtpController = async (req, res) => {
     await User.create({ name, email, password: hashedPassword });
     const existingUser = await User.findOne({ email });
 
-    // delete OTP entry
     await Otp.deleteOne({ email });
 
         generateToken(existingUser._id, res);
@@ -69,18 +68,15 @@ const verifyOtpController = async (req, res) => {
 const loginController = async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log(email,password);
         
         const existingUser = await User.findOne({ email });
         if (!existingUser) {
-            console.log('the no exist');
 
             return res.status(400).json({ message: 'User not found' });
             
         }
         const isPasswordValid = await bcrypt.compare(password, existingUser.password);
         if (!isPasswordValid) {
-            console.log('the no exist pass');
             return res.status(400).json({ message: 'Invalid password' });
         }
         generateToken(existingUser._id, res);
@@ -112,10 +108,9 @@ const logoutController = async (req, res) => {
   try {
     res.clearCookie("jwt", {
       httpOnly: true,
-      secure: true,        // must match the original cookie
-      sameSite: "none",    // required for cross-site cookies (Vercel)
+      secure: true,        
+      sameSite: "none",    
     });
-       console.log('from log out');
        
     return res.json({ success: true, message: "Logged out successfully" });
 

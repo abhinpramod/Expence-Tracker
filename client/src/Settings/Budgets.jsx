@@ -16,11 +16,11 @@ export default function BudgetsSettings() {
   const [year, setYear] = useState(today.getFullYear());
   const [categories, setCategories] = useState([]);
   const [budgets, setBudgets] = useState({});
-  const [loading, setLoading] = useState(false); // 🔥 added loading state
+  const [loading, setLoading] = useState(false); 
 
   const fetchBudgets = async () => {
     try {
-      setLoading(true); // 🔥 start loader
+      setLoading(true); 
 
       const [catsRes, budRes] = await Promise.all([
         axiosInstance.get("/categories", { withCredentials: true }),
@@ -41,7 +41,7 @@ export default function BudgetsSettings() {
     } catch (err) {
       toast.error("Failed to load budgets");
     } finally {
-      setLoading(false); // 🔥 stop loader
+      setLoading(false); 
     }
   };
 
@@ -51,7 +51,7 @@ export default function BudgetsSettings() {
 
   const saveBudgets = async () => {
     try {
-        setLoading(true); // 🔥 start loader
+        setLoading(true); 
       const payload = {
         month,
         year,
@@ -62,14 +62,14 @@ export default function BudgetsSettings() {
       };
 
       await axiosInstance.post("/budgets", payload, { withCredentials: true });
-        setLoading(false); // 🔥 stop loader
+        setLoading(false); 
       toast.success("Budgets Saved Successfully!");
 
     } catch (err) {
       toast.error("Failed to save budgets");
-        setLoading(false); // 🔥 stop loader
+        setLoading(false); 
     }finally {
-        setLoading(false); // 🔥 stop loader
+        setLoading(false); 
     }
   };
 
@@ -82,7 +82,6 @@ export default function BudgetsSettings() {
           Monthly Budget Settings
         </h1>
 
-        {/* Month & Year Inputs */}
         <div className="flex gap-4 mb-6">
           <select
             value={month}
@@ -104,14 +103,12 @@ export default function BudgetsSettings() {
           />
         </div>
 
-        {/* 🔥 Loading Indicator */}
         {loading && (
           <div className="w-full py-6 flex justify-center">
             <LinearProgress className="w-1/2" />
           </div>
         )}
 
-        {/* Categories list — hidden while loading */}
         {!loading && (
           <div className="bg-white rounded-xl shadow p-5 space-y-4 border">
             {categories.length === 0 && (
@@ -146,13 +143,13 @@ export default function BudgetsSettings() {
           </div>
         )}
 
-        {/* Save Button */}
         <div className="mt-6">
           <button
             onClick={saveBudgets}
+            disabled={loading}
             className="bg-blue-600 hover:bg-blue-700 transition text-white px-5 py-3 rounded-lg text-lg shadow-md w-full"
           >
-            Save Budgets
+            {loading ? "Saving..." : "Save Budgets"}
           </button>
         </div>
       </div>

@@ -5,9 +5,11 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import toast from "react-hot-toast";
 import axiosInstance from "../utils/axiosInstance";
+import { set } from "mongoose";
 
 export default function AddExpenseModal({ open, onClose, refresh }) {
   const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     categoryId: "",
@@ -31,10 +33,18 @@ export default function AddExpenseModal({ open, onClose, refresh }) {
 
   useEffect(() => {
     if (open) {
+      setLoading(true);
       axiosInstance
+
         .get("/categories", { withCredentials: true })
-        .then((r) => setCategories(r.data))
-        .catch(() => toast.error("Failed to load categories"));
+        .then((r) => {
+          setCategories(r.data);
+          setLoading(false);
+        })
+        .catch(() => {
+          toast.error("Failed to load categories");
+          setLoading(false);
+        });
     }
   }, [open]);
 
@@ -43,6 +53,7 @@ export default function AddExpenseModal({ open, onClose, refresh }) {
       return toast.error("Please fill category and amount");
 
     try {
+        setLoading(true);
       const res = await axiosInstance.post(
         "/expense",
         {
@@ -61,8 +72,10 @@ export default function AddExpenseModal({ open, onClose, refresh }) {
 
       onClose();
       refresh()
+      setLoading(false);
     } catch (err) {
       toast.error("Failed to add expense");
+      setLoading(false);
     }
   };
 
@@ -70,7 +83,6 @@ export default function AddExpenseModal({ open, onClose, refresh }) {
     <Modal open={open} onClose={onClose}>
       <Box sx={modalStyle} className="relative">
 
-        {/* Close Button */}
         <IconButton
           onClick={onClose}
           size="small"
@@ -79,12 +91,10 @@ export default function AddExpenseModal({ open, onClose, refresh }) {
           <CloseIcon fontSize="small" />
         </IconButton>
 
-        {/* Modal Title */}
         <h2 className="text-xl font-semibold text-gray-800 mb-5 text-center">
           Add Expense
         </h2>
 
-        {/* Category Dropdown */}
         <TextField
           select
           label="Category"
@@ -103,7 +113,6 @@ export default function AddExpenseModal({ open, onClose, refresh }) {
           ))}
         </TextField>
 
-        {/* Amount Field */}
         <TextField
           label="Amount"
           type="number"
@@ -114,7 +123,6 @@ export default function AddExpenseModal({ open, onClose, refresh }) {
           onChange={(e) => setForm({ ...form, amount: e.target.value })}
         />
 
-        {/* Date Field */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Date
@@ -126,7 +134,6 @@ export default function AddExpenseModal({ open, onClose, refresh }) {
           />
         </div>
 
-        {/* Note Field */}
         <TextField
           label="Note"
           fullWidth
@@ -136,14 +143,14 @@ export default function AddExpenseModal({ open, onClose, refresh }) {
           onChange={(e) => setForm({ ...form, note: e.target.value })}
         />
 
-        {/* Save Button */}
         <Button
           variant="contained"
           fullWidth
           sx={{ paddingY: 1 }}
           onClick={handleSubmit}
+          disabled={loading}
         >
-          Save Expense
+          {loading ? "Saving..." : "Save Expense"}
         </Button>
       </Box>
     </Modal>

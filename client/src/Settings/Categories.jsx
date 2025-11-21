@@ -12,11 +12,11 @@ export default function CategoriesSettings() {
   const [deleteId, setDeleteId] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const [loading, setLoading] = useState(false); // 🔥 loading state
+  const [loading, setLoading] = useState(false); 
 
   const fetch = async () => {
     try {
-      setLoading(true); // 🔥 start loader
+      setLoading(true); 
       const response = await axiosInstance.get("/categories", {
         withCredentials: true,
       });
@@ -25,7 +25,7 @@ export default function CategoriesSettings() {
     } catch {
       toast.error("Failed to load categories");
     } finally {
-      setLoading(false); // 🔥 stop loader
+      setLoading(false); 
     }
   };
 
@@ -59,7 +59,6 @@ export default function CategoriesSettings() {
       <div className="p-4 md:p-8 max-w-3xl mx-auto">
         <h2 className="text-2xl font-bold mb-6">Category Settings</h2>
 
-        {/* Add Category */}
         <div className="bg-white shadow-md rounded-xl p-5 mb-6 border">
           <h3 className="font-semibold text-lg mb-4">Add New Category</h3>
 
@@ -94,24 +93,22 @@ export default function CategoriesSettings() {
             <button
               onClick={add}
               className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              disabled={loading}
             >
-              Add
+              {loading ? "Adding..." : "Add"}
             </button>
           </div>
         </div>
 
-        {/* Category List */}
         <div className="bg-white shadow-md rounded-xl p-5 border">
           <h3 className="font-semibold text-lg mb-4">Your Categories</h3>
 
-          {/* 🔥 Loader */}
           {loading && (
             <div className="w-full py-6 flex justify-center">
               <LinearProgress className="w-1/2" />
             </div>
           )}
 
-          {/* List — hidden while loading */}
           {!loading && (
             <>
               {list.length === 0 && (

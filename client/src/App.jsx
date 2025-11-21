@@ -12,7 +12,6 @@ import Report from './Report.jsx';
 const App = () => {
   const {loading} = useAuthCheak();
   const { user } = useSelector((state) => state.user);
-  console.log(user);
 
   
 

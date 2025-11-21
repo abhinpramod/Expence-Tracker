@@ -8,7 +8,6 @@ exports.addExpense = async (req, res) => {
     const userId = req.user._id;
     const expenseDate = date ? new Date(date) : new Date();
 
-    // 1️⃣ Save expense
     const exp = new Expense({
       userId,
       categoryId,
@@ -19,22 +18,20 @@ exports.addExpense = async (req, res) => {
 
     await exp.save();
 
-    // 2️⃣ Find budget for month + category
     const year = expenseDate.getFullYear();
     const month = expenseDate.getMonth();
 
     const budget = await Budget.findOne({ userId, categoryId, year, month });
     const limit = budget ? budget.amount : 0;
 
-    // 3️⃣ Calculate total spent this month for same category
     const start = new Date(year, month, 1);
     const end = new Date(year, month + 1, 0, 23, 59, 59);
 
     const agg = await Expense.aggregate([
       {
         $match: {
-          userId: new mongoose.Types.ObjectId(userId),   // FIXED
-          categoryId: new mongoose.Types.ObjectId(categoryId), // FIXED
+          userId: new mongoose.Types.ObjectId(userId),   
+          categoryId: new mongoose.Types.ObjectId(categoryId), 
           date: { $gte: start, $lte: end },
         },
       },
@@ -44,7 +41,6 @@ exports.addExpense = async (req, res) => {
     const spent = agg.length ? agg[0].spent : 0;
     const over = limit > 0 ? spent > limit : false;
 
-    // Response
     res.status(201).json({
       success: true,
       expense: exp,

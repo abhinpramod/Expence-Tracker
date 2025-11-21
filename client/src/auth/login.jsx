@@ -94,7 +94,6 @@ const Login = () => {
           </button>
         </form>
 
-        {/* Footer text */}
         <p className="text-center mt-5 text-gray-600">
           Don’t have an account?{" "}
           <Link to="/" className="text-blue-600 font-medium">

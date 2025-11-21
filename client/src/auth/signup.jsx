@@ -23,7 +23,7 @@ const Signup = () => {
  const handleSignup = async (e) => {
   e.preventDefault();
 
-  if (loading) return; // prevent double click
+  if (loading) return; 
 
   if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
     toast.error("All fields are required");
@@ -76,7 +76,6 @@ const Signup = () => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
       
-      {/* STEP 1 - SIGNUP FORM */}
       {step === 1 && (
         <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md space-y-4">
 
@@ -135,7 +134,6 @@ const Signup = () => {
         </div>
       )}
 
-      {/* STEP 2 - OTP INPUT */}
       {step === 2 && (
         <OtpInputBox formData={formData} />
       )}

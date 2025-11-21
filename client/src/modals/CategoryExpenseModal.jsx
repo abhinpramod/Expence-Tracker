@@ -58,7 +58,6 @@ if (loading) {
       </DialogTitle>
 
       <DialogContent dividers>
-        {/* Summary */}
         <div className="mb-4 p-3 border rounded bg-gray-50">
           <p className="font-semibold">
             Spent: ₹{category?.spent} / ₹{category?.limit}
@@ -73,7 +72,6 @@ if (loading) {
           </p>
         </div>
 
-        {/* Expenses List */}
         {expenses.length === 0 ? (
           <p className="text-center text-gray-600">No expenses found.</p>
         ) : (
@@ -86,7 +84,6 @@ if (loading) {
                 <div>
                   <p className="font-medium">{exp.note || "No Note"}</p>
 
-                  {/* 👇 UPDATED: Show Date + Time */}
                   <p className="text-sm text-gray-500">
                     {new Date(exp.date).toLocaleDateString()} •{" "}
                     {new Date(exp.date).toLocaleTimeString([], {

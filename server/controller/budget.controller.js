@@ -1,8 +1,6 @@
 const Budget = require("../models/budget.model");
 
-/* ================================
-   SAVE / UPDATE MONTHLY BUDGETS
-================================ */
+
 exports.setBudgets = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -15,7 +13,6 @@ exports.setBudgets = async (req, res) => {
       });
     }
 
-    // Prepare bulk update operations
     const ops = budgets.map((b) => ({
       updateOne: {
         filter: {
@@ -45,9 +42,7 @@ exports.setBudgets = async (req, res) => {
   }
 };
 
-/* ================================
-   GET MONTHLY BUDGETS
-================================ */
+
 exports.getBudgets = async (req, res) => {
   try {
     const userId = req.user._id;

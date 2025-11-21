@@ -31,7 +31,6 @@ export default function Reports() {
   const normalizeReportResponse = (respData) => {
     if (!respData) return { rows: [], summary: { totalBudget: 0, totalSpent: 0, totalRemaining: 0 } };
 
-    // shape: { rows, summary }
     if (respData.rows) {
       const r = respData.rows.map((it) => ({
         category: it.category ?? it.name ?? (it.categoryId?.name ?? "Unknown"),
@@ -42,7 +41,6 @@ export default function Reports() {
       return { rows: r, summary: respData.summary ?? {} };
     }
 
-    // shape: { data: [...] }
     if (Array.isArray(respData.data)) {
       const r = respData.data.map((it) => ({
         category: it.category ?? it.name ?? "Unknown",
@@ -58,7 +56,6 @@ export default function Reports() {
       return { rows: r, summary };
     }
 
-    // fallback array directly
     if (Array.isArray(respData)) {
       const r = respData.map((it) => ({
         category: it.category ?? it.name ?? "Unknown",
@@ -101,10 +98,8 @@ export default function Reports() {
 
   useEffect(() => {
     fetchReport();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [month, year]);
 
-  // Chart data
   const barData = rows.map((r) => ({
     category: r.category,
     Spent: Number(r.spent),
@@ -153,7 +148,6 @@ export default function Reports() {
         </div>
       </header>
 
-      {/* Summary */}
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow p-4 text-center">
           <div className="text-sm text-gray-500">Total Budget</div>
@@ -173,7 +167,6 @@ export default function Reports() {
         </div>
       </section>
 
-      {/* Charts */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow p-4">
           <h3 className="font-medium mb-3">Spent vs Remaining (per category)</h3>
@@ -215,7 +208,6 @@ export default function Reports() {
         </div>
       </section>
 
-      {/* Desktop table (md+) */}
       <section className="hidden md:block bg-white rounded-lg shadow p-4 overflow-x-auto">
         <table className="w-full table-auto min-w-[640px]">
           <thead className="bg-gray-50 text-sm text-gray-600">
@@ -243,7 +235,6 @@ export default function Reports() {
         </table>
       </section>
 
-      {/* Mobile cards (sm & below) */}
       <section className="md:hidden space-y-3">
         {rows.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-4 text-center text-gray-500">No data available</div>
@@ -262,9 +253,7 @@ export default function Reports() {
               <div className={`text-right font-medium ${r.remaining < 0 ? "text-red-600" : "text-green-600"}`}>₹{r.remaining}</div>
             </div>
 
-            {/* small progress bar */}
             <div className="mt-3 bg-gray-100 h-2 rounded-full overflow-hidden">
-              {/* percent spent relative to budget */}
               <div
                 className="h-full"
                 style={{
