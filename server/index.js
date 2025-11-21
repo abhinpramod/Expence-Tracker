@@ -23,13 +23,25 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
-app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",  
-  credentials: true,                
-}));
+
+app.use(
+  cors({
+    origin: [
+      process.env.CLIENT_URL,         // Production (Vercel)
+      "http://localhost:5173",        // Dev (Vite)
+      "http://localhost:3000"         // (Optional React default)
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 app.use('/api/auth', (req, res, next) => {
   console.log(`Received ${req.method} request for ${req.url}`);
+  console.log("this is base",process.env.CLIENT_URL);
+
   next();
+
 }
 );
 

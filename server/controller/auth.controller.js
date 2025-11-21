@@ -107,17 +107,21 @@ const cheakauthController = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
 const logoutController = async (req, res) => {
-    try {
-        res.clearCookie('token', {
-           
-        });
-        res.json({ success: true, message: "Logged out successfully" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: "Logout failed" });
-    }
+  try {
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      secure: true,        // must match the original cookie
+      sameSite: "none",    // required for cross-site cookies (Vercel)
+    });
+       console.log('from log out');
+       
+    return res.json({ success: true, message: "Logged out successfully" });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Logout failed" });
+  }
 };
 
 module.exports = {
