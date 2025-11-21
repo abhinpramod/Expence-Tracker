@@ -23,7 +23,7 @@ exports.getMonthlyReport = async (req, res) => {
     }).populate("categoryId", "name");
 
     // Fetch budgets only for this user
-    const budgets = await Budget.find({ userId,month,year }).populate("categoryId", "name");
+    const budgets = await Budget.find({ userId, month: monthNum, year: yearNum }).populate("categoryId", "name");
 
     const report = budgets.map(b => {
       const spent = expenses
