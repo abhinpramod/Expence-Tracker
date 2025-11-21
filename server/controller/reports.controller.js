@@ -1,3 +1,6 @@
+const Expense = require("../models/expense.model");
+const Budget = require("../models/budget.model");
+
 exports.getMonthlyReport = async (req, res) => {
   console.log("in reports");
 
