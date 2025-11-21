@@ -11,6 +11,7 @@ const OtpInputBox = ({ formData }) => {
   const dispatch = useDispatch();
 
   const handleChange = (e, i) => {
+    
     const value = e.target.value;
     if (isNaN(value)) return;
 
