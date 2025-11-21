@@ -62,4 +62,3 @@ connectDB()
     });
   })
   .catch((error) => console.log("Database connection error:", error.message));
-

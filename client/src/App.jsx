@@ -13,7 +13,7 @@ const App = () => {
   const {loading} = useAuthCheak();
   const { user } = useSelector((state) => state.user);
   console.log(user);
-  
+
   
 
   if(loading){
@@ -34,12 +34,10 @@ const App = () => {
           <Route path="/budgets" element={user ? <Budgets /> : <Login />} />
           <Route path="/categories" element={user ? <Categories /> : <Login />} />
           <Route path="/report" element={user ? <Report /> : <Login />} />
-
         </Routes>
       </Router>
-
     </div>
   )
+      
 }
-
 export default App
