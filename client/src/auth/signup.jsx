@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axiosInstance from "../utils/axiosInstance.js";
+import axiosInstance from "../utils/axiosInstance";
 import OtpInputBox from "../components/OtpInputBox.jsx";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";

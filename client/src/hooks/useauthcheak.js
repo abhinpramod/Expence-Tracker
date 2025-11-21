@@ -1,4 +1,4 @@
-import axiosInstance from '../utils/axiosInstance.js';  
+import axiosInstance from '../utils/axiosInstance';
 import { useDispatch } from "react-redux";
 import { loginUser } from "../redux/userSlice.js";
 import { useEffect, useState } from "react";
