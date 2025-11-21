@@ -7,6 +7,8 @@ exports.getMonthlyReport = async (req, res) => {
   try {
     const { month, year } = req.query;
     console.log(req.user);
+    console.log(req.user._id);
+    
     const userId = req.user._id;
 
     if (!month || !year) {
