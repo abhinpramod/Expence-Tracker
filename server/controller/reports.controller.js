@@ -1,26 +1,30 @@
 const Expense = require("../models/expense.model");
-const Budget = require("../models/budget.model"); // Assuming you have budgets per category
+const Budget = require("../models/budget.model");
 
 exports.getMonthlyReport = async (req, res) => {
   try {
     const { month, year } = req.query;
-    if (!month || !year) return res.status(400).json({ success: false, message: "Month & year required" });
+    const userId = req.user._id; // 👈 Get logged in user
+
+    if (!month || !year) {
+      return res.status(400).json({ success: false, message: "Month & year required" });
+    }
 
     const monthNum = parseInt(month) - 1;
     const yearNum = parseInt(year);
 
-    // Fetch all expenses in that month
+    // Fetch only this user's expenses for selected month
     const expenses = await Expense.find({
+      userId, // 👈 filter by user
       date: {
         $gte: new Date(yearNum, monthNum, 1),
         $lt: new Date(yearNum, monthNum + 1, 1)
       }
     }).populate("categoryId", "name");
 
-    // Fetch budgets (assuming Budget model has {categoryId, amount})
-    const budgets = await Budget.find({}).populate("categoryId", "name");
+    // Fetch budgets only for this user
+    const budgets = await Budget.find({ userId }).populate("categoryId", "name");
 
-    // Build report per category
     const report = budgets.map(b => {
       const spent = expenses
         .filter(e => e.categoryId._id.equals(b.categoryId._id))
