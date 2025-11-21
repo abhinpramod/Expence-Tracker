@@ -6,7 +6,8 @@ exports.getMonthlyReport = async (req, res) => {
   
   try {
     const { month, year } = req.query;
-    const userId = req.user._id; // 👈 Get logged in user
+    console.log(req.user);
+    const userId = req.user._id;
 
     if (!month || !year) {
       return res.status(400).json({ success: false, message: "Month & year required" });
