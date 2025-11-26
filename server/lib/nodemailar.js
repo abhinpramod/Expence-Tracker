@@ -1,28 +1,34 @@
-const nodemailer = require('nodemailer');
-require('dotenv').config();
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-    },
-    pool: true,           
-    maxConnections: 5,    
-    maxMessages: 20,      
+  host: "smtp.gmail.com",
+  port: 465,               
+  secure: true,            
+  auth: {
+    user: process.env.EMAIL_USER,        // Gmail address
+    pass: process.env.EMAIL_PASSWORD,    // App Password
+  },
+  tls: {
+    rejectUnauthorized: false,  
+  }
 });
 
+// MAIN FUNCTION
 const sendEmail = async (to, subject, text) => {
   try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    const info = await transporter.sendMail({
+      from: `"Nearwala" <${process.env.EMAIL_USER}>`,
       to,
       subject,
-      text
+      text,
     });
-    console.log("Email sent to:", to);
+
+    console.log("Email sent:", info.messageId);
+    return true;
   } catch (error) {
-    console.log("Email error:", error);
+    console.error("Nodemailer Error:", error);
+    return false;
   }
 };
 

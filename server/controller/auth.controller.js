@@ -1,38 +1,41 @@
-const User = require('../models/user.model.js');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const sendEmail = require('../lib/nodemailar.js');
-const Otp = require('../models/otp.model.js');
-const generateToken = require('../lib/genaratetoken.js');
+    const User = require('../models/user.model.js');
+    const bcrypt = require('bcryptjs');
+    const jwt = require('jsonwebtoken');
+    const sendEmail = require('../lib/nodemailar.js');
+    const Otp = require('../models/otp.model.js');
+    const generateToken = require('../lib/genaratetoken.js');
 
-const signupController = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
 
-    const userExist = await User.findOne({ email });
-    if (userExist) {
-      return res.json({ success: false, message: "User already exists" });
-    }
+    const signupController = async (req, res) => {
+      try {
+        const { name, email, password } = req.body;
 
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const userExist = await User.findOne({ email });
+        if (userExist) {
+          return res.json({ success: false, message: "User already exists" });
+        }
 
-    await Otp.create({ email, otp: otpCode });
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    sendEmail(
-      email,
-      "Your OTP Code",
-      `Your OTP code is ${otpCode}. It will expire in 5 minutes.`
-    );
+      await Otp.deleteMany({ email });
 
-    console.log("OTP:", otpCode);
+        await Otp.create({ email, otp: otpCode });
 
-    return res.json({ success: true, message: "OTP sent to email" });
+         await sendEmail(
+          email,
+          "Your OTP Code",
+          `Your OTP code is ${otpCode}. It will expire in 5 minutes.`
+        );
 
-  } catch (err) {
-    console.log(err);
-    res.json({ success: false, message: "Signup failed" });
-  }
-};
+        console.log("OTP:", otpCode);
+
+        return res.json({ success: true, message: "OTP sent to email" });
+
+      } catch (err) {
+        console.log(err);
+        res.json({ success: false, message: "Signup failed" });
+      }
+    };
 
 
 const verifyOtpController = async (req, res) => {
