@@ -101,7 +101,7 @@ export default function Dashboard() {
         {categories.length === 0 && (
           <div className="bg-white p-6 rounded-xl shadow text-center">
             <p className="text-gray-600 text-lg">
-              No categories found for this month.
+              No categories found.
             </p>
             <p className="text-gray-500 mt-1">
               Click the menu button and add category .
