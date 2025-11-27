@@ -10,26 +10,18 @@
       try {
         const { name, email, password } = req.body;
 
-        const userExist = await User.findOne({ email });
-        if (userExist) {
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
           return res.json({ success: false, message: "User already exists" });
         }
+       const  hashedPassword = await bcrypt.hash(password, 10);
 
-        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+   await User.create({ name, email, password: hashedPassword });
+      
 
-      await Otp.deleteMany({ email });
 
-        await Otp.create({ email, otp: otpCode });
 
-         await sendEmail(
-          email,
-          "Your OTP Code",
-          `Your OTP code is ${otpCode}. It will expire in 5 minutes.`
-        );
-
-        console.log("OTP:", otpCode);
-
-        return res.json({ success: true, message: "OTP sent to email" });
+        return res.json({ success: true, message: "sign up successful" });
 
       } catch (err) {
         console.log(err);
@@ -38,35 +30,36 @@
     };
 
 
-const verifyOtpController = async (req, res) => {
-    try {
-    const { name, email, password, otp } = req.body;
+// const verifyOtpController = async (req, res) => {
+//     try {
+//     const { name, email, password, otp } = req.body;
 
-    const otpEntry = await Otp.findOne({ email });
+//     const otpEntry = await Otp.findOne({ email });
 
-    if (!otpEntry) {
-      return res.json({ success: false, message: "OTP expired or invalid" });
-    }
+//     if (!otpEntry) {
+//       return res.json({ success: false, message: "OTP expired or invalid" });
+//     }
 
-    if (otpEntry.otp !== otp) {
-      return res.json({ success: false, message: "Incorrect OTP" });
-    }
+//     if (otpEntry.otp !== otp) {
+//       return res.json({ success: false, message: "Incorrect OTP" });
+//     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await User.create({ name, email, password: hashedPassword });
-    const existingUser = await User.findOne({ email });
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     await User.create({ name, email, password: hashedPassword });
 
-    await Otp.deleteOne({ email });
+//     const existingUser = await User.findOne({ email });
 
-        generateToken(existingUser._id, res);
+//     await Otp.deleteOne({ email });
 
-    return res.json({ success: true, message: "OTP verified and user created", user: { name, email } });
+//         generateToken(existingUser._id, res);
 
-  } catch (err) {
-    console.log(err);
-    res.json({ success: false, message: "OTP Verification failed" });
-  }
-};
+//     return res.json({ success: true, message: "OTP verified and user created", user: { name, email } });
+
+//   } catch (err) {
+//     console.log(err);
+//     res.json({ success: false, message: "OTP Verification failed" });
+//   }
+// };
 
 const loginController = async (req, res) => {
     try {
@@ -126,7 +119,7 @@ const logoutController = async (req, res) => {
 module.exports = {
     signupController,
     loginController,
-    verifyOtpController,
+    // verifyOtpController,
     cheakauthController,
     logoutController
 };
